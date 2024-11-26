@@ -1,0 +1,218 @@
+drop database padaria;
+
+create database padaria;
+
+use padaria;
+
+
+-- Tabela de Funcionários
+CREATE TABLE Funcionarios (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15),
+    cpf VARCHAR(14) UNIQUE NOT NULL,
+    cargo_codigo INT,
+    salario DECIMAL(10, 2) NOT NULL CHECK (salario >= 0),
+    FOREIGN KEY (cargo_codigo) REFERENCES Cargos(codigo)
+);
+
+-- Tabela de Cargos
+CREATE TABLE Cargos (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL
+);
+
+-- Tabela de Clientes
+CREATE TABLE Clientes (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15),
+    comanda INT UNIQUE
+);
+
+-- Tabela de Produtos
+CREATE TABLE Produtos (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco DECIMAL(10, 2) NOT NULL CHECK (preco > 0),
+    quantidade INT NOT NULL DEFAULT 0 CHECK (quantidade >= 0)
+);
+
+-- Tabela de Fornecedores
+CREATE TABLE Fornecedores (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15),
+    endereco VARCHAR(200),
+    produto_vende INT,
+    FOREIGN KEY (produto_vende) REFERENCES Produtos(codigo)
+);
+
+-- Tabela de Estoques
+CREATE TABLE Estoques (
+    codigo INT PRIMARY KEY,
+    produto_codigo INT NOT NULL,
+    data_entrada DATE NOT NULL,
+    hora_entrada TIME NOT NULL,
+    hora_saida TIME,
+    quantidade INT NOT NULL CHECK (quantidade > 0),
+    preco DECIMAL(10, 2) NOT NULL CHECK (preco > 0),
+    FOREIGN KEY (produto_codigo) REFERENCES Produtos(codigo)
+);
+
+-- Tabela de Reposições
+CREATE TABLE Reposicoes (
+    codigo INT PRIMARY KEY,
+    produto_codigo INT NOT NULL,
+    fornecedor_codigo INT NOT NULL,
+    FOREIGN KEY (produto_codigo) REFERENCES Produtos(codigo),
+    FOREIGN KEY (fornecedor_codigo) REFERENCES Fornecedores(codigo)
+);
+
+-- Tabela de Comandas
+CREATE TABLE Comandas (
+    codigo INT PRIMARY KEY,
+    cliente_codigo INT NOT NULL,
+    data DATE NOT NULL,
+    produto_registrado INT NOT NULL,
+    quantidade INT NOT NULL CHECK (quantidade > 0),
+    valor_unitario DECIMAL(10, 2) NOT NULL CHECK (valor_unitario > 0),
+    valor_total DECIMAL(10, 2) NOT NULL CHECK (valor_total >= 0),
+    status VARCHAR(20) NOT NULL,
+    funcionario_registro INT,
+    FOREIGN KEY (cliente_codigo) REFERENCES Clientes(codigo),
+    FOREIGN KEY (produto_registrado) REFERENCES Produtos(codigo),
+    FOREIGN KEY (funcionario_registro) REFERENCES Funcionarios(codigo)
+);
+
+-- Tabela de Vendas
+CREATE TABLE Vendas (
+    codigo INT PRIMARY KEY,
+    data_da_venda DATE NOT NULL,
+    produtos_vendidos INT NOT NULL,
+    quantidades INT NOT NULL CHECK (quantidades > 0),
+    preco DECIMAL(10, 2) NOT NULL CHECK (preco > 0),
+    funcionario_registro INT NOT NULL,
+    funcionario_pagamento INT NOT NULL,
+    FOREIGN KEY (produtos_vendidos) REFERENCES Produtos(codigo),
+    FOREIGN KEY (funcionario_registro) REFERENCES Funcionarios(codigo),
+    FOREIGN KEY (funcionario_pagamento) REFERENCES Funcionarios(codigo)
+);
+
+-- Tabela de Caixas
+CREATE TABLE Caixas (
+    codigo INT PRIMARY KEY,
+    comanda INT NOT NULL,
+    forma_pagamento VARCHAR(50) NOT NULL DEFAULT 'Dinheiro',
+    troco DECIMAL(10, 2) NOT NULL DEFAULT 0 CHECK (troco >= 0),
+    FOREIGN KEY (comanda) REFERENCES Comandas(codigo)
+);
+
+
+desc Funcionarios
+desc Cargos
+desc Clientes
+desc Produtos
+desc Fornecedores
+desc Estoques
+desc Reposicoes 
+desc Comandas
+desc Vendas
+desc Caixas
+
+-- Inserindo dados na tabela Funcionários
+INSERT INTO Funcionarios (codigo, nome, telefone, cpf, cargo_codigo, salario) VALUES (1, 'João Silva', '11912345678', '123.456.789-01', 1, 2500.00);
+INSERT INTO Funcionarios (codigo, nome, telefone, cpf, cargo_codigo, salario) VALUES (2, 'Maria Oliveira', '11987654321', '987.654.321-00', 2, 3200.00);
+INSERT INTO Funcionarios (codigo, nome, telefone, cpf, cargo_codigo, salario) VALUES (3, 'Carlos Souza', '11956781234', '456.123.789-09', 3, 1800.00);
+INSERT INTO Funcionarios (codigo, nome, telefone, cpf, cargo_codigo, salario) VALUES (4, 'Ana Pereira', '11934567890', '789.012.345-67', 4, 2700.00);
+INSERT INTO Funcionarios (codigo, nome, telefone, cpf, cargo_codigo, salario) VALUES (5, 'Fernanda Lima', '11923456789', '321.654.987-02', 5, 3000.00);
+
+-- Inserindo dados na tabela Cargos
+INSERT INTO Cargos (codigo, nome) VALUES (1, 'Atendente');
+INSERT INTO Cargos (codigo, nome) VALUES (2, 'Gerente');
+INSERT INTO Cargos (codigo, nome) VALUES (3, 'Padeiro');
+INSERT INTO Cargos (codigo, nome) VALUES (4, 'Caixa');
+INSERT INTO Cargos (codigo, nome) VALUES (5, 'Auxiliar de Limpeza');
+
+-- Inserindo dados na tabela Clientes
+INSERT INTO Clientes (codigo, nome, telefone, comanda) VALUES (1, 'Lucas Martins', '11911223344', 101);
+INSERT INTO Clientes (codigo, nome, telefone, comanda) VALUES (2, 'Gabriela Souza', '11922334455', 102);
+INSERT INTO Clientes (codigo, nome, telefone, comanda) VALUES (3, 'Thiago Santos', '11933445566', 103);
+INSERT INTO Clientes (codigo, nome, telefone, comanda) VALUES (4, 'Mariana Costa', '11944556677', 104);
+INSERT INTO Clientes (codigo, nome, telefone, comanda) VALUES (5, 'Fernando Alves', '11955667788', 105);
+
+-- Inserindo dados na tabela Produtos
+INSERT INTO Produtos (codigo, nome, preco, quantidade) VALUES (1, 'Pão Francês', 0.50, 100);
+INSERT INTO Produtos (codigo, nome, preco, quantidade) VALUES (2, 'Croissant', 3.00, 50);
+INSERT INTO Produtos (codigo, nome, preco, quantidade) VALUES (3, 'Bolo de Cenoura', 15.00, 20);
+INSERT INTO Produtos (codigo, nome, preco, quantidade) VALUES (4, 'Leite Integral', 4.50, 30);
+INSERT INTO Produtos (codigo, nome, preco, quantidade) VALUES (5, 'Café Expresso', 5.00, 40);
+
+-- Inserindo dados na tabela Fornecedores
+INSERT INTO Fornecedores (codigo, nome, telefone, endereco, produto_vende) VALUES (1, 'Padaria Central', '11999999999', 'Rua A, 123', 1);
+INSERT INTO Fornecedores (codigo, nome, telefone, endereco, produto_vende) VALUES (2, 'Fornecedora Pães', '11988888888', 'Rua B, 456', 2);
+INSERT INTO Fornecedores (codigo, nome, telefone, endereco, produto_vende) VALUES (3, 'Doces & Bolos', '11977777777', 'Rua C, 789', 3);
+INSERT INTO Fornecedores (codigo, nome, telefone, endereco, produto_vende) VALUES (4, 'Laticínios SP', '11966666666', 'Rua D, 101', 4);
+INSERT INTO Fornecedores (codigo, nome, telefone, endereco, produto_vende) VALUES (5, 'Café Premium', '11955555555', 'Rua E, 202', 5);
+
+-- Inserindo dados na tabela Estoques
+INSERT INTO Estoques (codigo, produto_codigo, data_entrada, hora_entrada, hora_saida, quantidade, preco) VALUES (1, 1, '2024-11-01', '08:00:00', NULL, 50, 25.00);
+INSERT INTO Estoques (codigo, produto_codigo, data_entrada, hora_entrada, hora_saida, quantidade, preco) VALUES (2, 2, '2024-11-02', '09:00:00', NULL, 20, 60.00);
+INSERT INTO Estoques (codigo, produto_codigo, data_entrada, hora_entrada, hora_saida, quantidade, preco) VALUES (3, 3, '2024-11-03', '10:00:00', NULL, 10, 150.00);
+
+
+
+
+
+-- Inserções na tabela Estoques
+INSERT INTO Estoques (codigo, produto_codigo, data_entrada, hora_entrada, hora_saida, quantidade, preco)
+VALUES
+(1, 101, '2024-11-01', '08:00:00', '18:00:00', 50, 15.00),
+(2, 102, '2024-11-02', '09:30:00', NULL, 30, 25.50),
+(3, 103, '2024-11-03', '10:00:00', '16:00:00', 20, 12.75),
+(4, 104, '2024-11-04', '11:15:00', NULL, 40, 8.99),
+(5, 105, '2024-11-05', '12:45:00', '20:00:00', 25, 19.99);
+
+-- Inserções na tabela Reposições
+INSERT INTO Reposicoes (codigo, produto_codigo, fornecedor_codigo)
+VALUES
+(1, 101, 201),
+(2, 102, 202),
+(3, 103, 203),
+(4, 104, 204),
+(5, 105, 205);
+
+-- Inserções na tabela Comandas
+INSERT INTO Comandas (codigo, cliente_codigo, data, produto_registrado, quantidade, valor_unitario, valor_total, status, funcionario_registro)
+VALUES
+(1, 301, '2024-11-10', 101, 2, 15.00, 30.00, 'Pago', 401),
+(2, 302, '2024-11-11', 102, 1, 25.50, 25.50, 'Pago', 402),
+(3, 303, '2024-11-12', 103, 3, 12.75, 38.25, 'Aberto', 403),
+(4, 304, '2024-11-13', 104, 5, 8.99, 44.95, 'Pago', 404),
+(5, 305, '2024-11-14', 105, 4, 19.99, 79.96, 'Pago', 405);
+
+-- Inserções na tabela Vendas
+INSERT INTO Vendas (codigo, data_da_venda, produtos_vendidos, quantidades, preco, funcionario_registro, funcionario_pagamento)
+VALUES
+(1, '2024-11-15', 101, 2, 30.00, 401, 402),
+(2, '2024-11-16', 102, 1, 25.50, 403, 404),
+(3, '2024-11-17', 103, 3, 38.25, 405, 401),
+(4, '2024-11-18', 104, 5, 44.95, 402, 403),
+(5, '2024-11-19', 105, 4, 79.96, 404, 405);
+
+-- Inserções na tabela Caixas
+INSERT INTO Caixas (codigo, comanda, forma_pagamento, troco)
+VALUES
+(1, 1, 'Dinheiro', 0.00),
+(2, 2, 'Cartão de Crédito', 0.00),
+(3, 3, 'Pix', 0.00),
+(4, 4, 'Dinheiro', 5.05),
+(5, 5, 'Cartão de Débito', 0.00);
+
+-- Atualizações na tabela Estoques
+UPDATE Estoques SET quantidade = 60 WHERE codigo = 1;
+UPDATE Estoques SET preco = 26.00 WHERE codigo = 2;
+UPDATE Estoques SET hora_saida = '17:00:00' WHERE codigo = 3;
+UPDATE Estoques SET data_entrada = '2024-11-06' WHERE codigo = 4;
+UPDATE Estoques SET produto_codigo = 106 WHERE codigo = 5;
+
