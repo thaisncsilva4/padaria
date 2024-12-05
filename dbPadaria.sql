@@ -362,3 +362,6 @@ select * from tbVendas where dataVend = '2024-12-03' and funcPagam = 'Pix';
 select * from tbVendas where preco > 10.00;
 select * from tbVendas where quantidade < 5;
 
+
+select nome, numero, endereco from tbFornecedores where codForn = 1;
+select nome, numero, endereco from tbFornecedores where bairro like '%a%';
